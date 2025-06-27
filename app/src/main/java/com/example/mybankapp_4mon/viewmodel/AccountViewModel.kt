@@ -1,6 +1,8 @@
-package com.example.mybankapp_4mon.presenter
+package com.example.mybankapp_4mon.viewmodel
 
-import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.example.mybankapp_4mon.data.api.ApiClient
 import com.example.mybankapp_4mon.data.model.Account
 import com.example.mybankapp_4mon.data.model.messages.AccountErrorType
@@ -10,58 +12,65 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class AccountPresenter(val view: AccountContract.View) : AccountContract.Presenter {
-    override fun loadAccounts() {
+class AccountViewModel : ViewModel() {
+
+    private val _accounts = MutableLiveData<List<Account>>()
+    val accounts: LiveData<List<Account>> = _accounts
+
+    private val _successMessage = MutableLiveData<String>()
+    val successMessage: LiveData<String> = _successMessage
+
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String> = _errorMessage
+
+    fun loadAccounts() {
         ApiClient.accountApi.getAccounts().handlerResponse(
-            onSuccess = { view.showAccounts(it) },
-            onError = { view.showError("${AccountErrorType.ACCOUNT_FETCH_ERROR.message}: $it") }
+            onSuccess = { _accounts.value = it },
+            onError = { _errorMessage.value = "Ошибка загрузки счетов: $it" }
         )
     }
 
-    override fun addAccount(account: Account) {
+    fun addAccount(account: Account) {
         ApiClient.accountApi.createAccount(account).handlerResponse(
             onSuccess = { loadAccounts() },
             onError = {
-                view.showError("${AccountErrorType.ACCOUNT_ADD_ERROR.message}: $it")
+                _errorMessage.value = "Ошибка добавления счёта: $it"
             }
         )
     }
 
-    override fun updateAccount(account: Account) {
+    fun updateAccount(account: Account) {
         ApiClient.accountApi.updateAccountFully(
             id = account.accountId!!,
             account = account
         ).handlerResponse(
             onSuccess = {
-                view.showSuccess(AccountSuccessType.ACCOUNT_UPDATE_SUCCESS.message)
                 loadAccounts()
             },
             onError = {
-                view.showError("${AccountErrorType.ACCOUNT_UPDATE_ERROR.message}: $it}")
+                _errorMessage.value = "Ошибка обновления счёта: $it"
             }
         )
     }
 
-    override fun patchAccountStatus(id: String, isActive: Boolean) {
+    fun patchAccountStatus(id: String, isActive: Boolean) {
         ApiClient.accountApi.patchAccountStatus(id, AccountStatusPatch(isActive)).handlerResponse(
             onSuccess = {
-                view.showSuccess(AccountSuccessType.ACCOUNT_STATUS_SUCCESS.message)
                 loadAccounts()
             },
             onError = {
-                view.showError("${AccountErrorType.ACCOUNT_STATUS_PATCH_ERROR.message}: $it}")
+                _errorMessage.value = "Ошибка обновления статуса счёта: $it"
             }
         )
     }
 
-    override fun deleteAccount(id: String) {
+    fun deleteAccount(id: String) {
         ApiClient.accountApi.deleteAccount(id).handlerResponse(
             onSuccess = {
-                view.showSuccess(AccountSuccessType.ACCOUNT_DELETE_SUCCESS.message)
                 loadAccounts()
             },
             onError = {
-                view.showError("${AccountErrorType.ACCOUNT_DELETE_ERROR.message}: $it")
+                _errorMessage.value = "Ошибка удаления счёта: $it"
             }
         )
     }

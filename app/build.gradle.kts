@@ -56,4 +56,9 @@ dependencies {
     //Okhttp
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
+
+    //ViewModel
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
 }

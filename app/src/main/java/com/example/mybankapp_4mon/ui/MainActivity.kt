@@ -3,23 +3,24 @@ package com.example.mybankapp_4mon.ui
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mybankapp_4mon.data.model.Account
 import com.example.mybankapp_4mon.databinding.ActivityMainBinding
 import com.example.mybankapp_4mon.databinding.DialogAddAccountBinding
-import com.example.mybankapp_4mon.presenter.AccountContract
-import com.example.mybankapp_4mon.presenter.AccountPresenter
+import com.example.mybankapp_4mon.viewmodel.AccountViewModel
 import com.example.mybankapp_4mon.ui.adapter.AccountAdapter
 
-class MainActivity : AppCompatActivity(), AccountContract.View {
+class MainActivity : AppCompatActivity() {
 
-    private lateinit var presenter: AccountContract.Presenter
     private lateinit var accountAdapter: AccountAdapter
 
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: AccountViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,20 +28,34 @@ class MainActivity : AppCompatActivity(), AccountContract.View {
         setContentView(binding.root)
         initAdapter()
         initClicks()
-        presenter = AccountPresenter(view = this)
-        presenter.loadAccounts()
+        viewModel.loadAccounts()
+        subscribeToLiveData()
+    }
+
+    private fun subscribeToLiveData() {
+        viewModel.accounts.observe(this) {
+            accountAdapter.setItems(it)
+        }
+
+        viewModel.successMessage.observe(this){
+            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+        }
+
+        viewModel.errorMessage.observe(this){
+            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun initAdapter() {
         accountAdapter = AccountAdapter(
             onEdit = {
-                showAccountDialog(it) { editedAccount -> presenter.updateAccount(editedAccount) }
+                showAccountDialog(it) { editedAccount -> viewModel.updateAccount(editedAccount) }
             },
             onStatusToggle = { id, isChecked ->
-                presenter.patchAccountStatus(id, isChecked)
+                viewModel.patchAccountStatus(id, isChecked)
             },
             onDelete = {
-                presenter.deleteAccount(it)
+                viewModel.deleteAccount(it)
             }
         )
         binding.rvAccounts.layoutManager = LinearLayoutManager(this)
@@ -50,7 +65,7 @@ class MainActivity : AppCompatActivity(), AccountContract.View {
     private fun initClicks() {
         with(binding) {
             btnAdd.setOnClickListener {
-                showAccountDialog { presenter.addAccount(it) }
+                showAccountDialog { viewModel.addAccount(it) }
             }
         }
     }
@@ -94,18 +109,5 @@ class MainActivity : AppCompatActivity(), AccountContract.View {
                 .setNegativeButton("Отмена", null)
                 .show()
         }
-    }
-
-    override fun showAccounts(accounts: List<Account>) {
-        accountAdapter.setItems(accounts)
-
-    }
-
-    override fun showError(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun showSuccess(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
