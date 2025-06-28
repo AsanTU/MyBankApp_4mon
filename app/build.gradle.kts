@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("dagger.hilt.android.plugin")
+    id("kotlin-kapt")
 }
 
 android {
@@ -56,4 +58,14 @@ dependencies {
     //Okhttp
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
+
+    //ViewModel
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    //Dagger Hilt
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
+    kapt("androidx.hilt:hilt-compiler:1.0.0")
 }
