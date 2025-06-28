@@ -26,7 +26,7 @@ class AccountViewModel : ViewModel() {
     fun loadAccounts() {
         ApiClient.accountApi.getAccounts().handlerResponse(
             onSuccess = { _accounts.value = it },
-            onError = { _errorMessage.value = "Ошибка загрузки счетов: $it" }
+            onError = { _errorMessage.value = "${AccountErrorType.ACCOUNT_FETCH_ERROR} $it" }
         )
     }
 
@@ -34,7 +34,7 @@ class AccountViewModel : ViewModel() {
         ApiClient.accountApi.createAccount(account).handlerResponse(
             onSuccess = { loadAccounts() },
             onError = {
-                _errorMessage.value = "Ошибка добавления счёта: $it"
+                _errorMessage.value = "${AccountErrorType.ACCOUNT_ADD_ERROR}: $it"
             }
         )
     }
@@ -48,7 +48,7 @@ class AccountViewModel : ViewModel() {
                 loadAccounts()
             },
             onError = {
-                _errorMessage.value = "Ошибка обновления счёта: $it"
+                _errorMessage.value = "${AccountErrorType.ACCOUNT_UPDATE_ERROR} $it"
             }
         )
     }
@@ -59,7 +59,7 @@ class AccountViewModel : ViewModel() {
                 loadAccounts()
             },
             onError = {
-                _errorMessage.value = "Ошибка обновления статуса счёта: $it"
+                _errorMessage.value = "${AccountErrorType.ACCOUNT_STATUS_PATCH_ERROR} $it"
             }
         )
     }
@@ -70,7 +70,7 @@ class AccountViewModel : ViewModel() {
                 loadAccounts()
             },
             onError = {
-                _errorMessage.value = "Ошибка удаления счёта: $it"
+                _errorMessage.value = "${AccountErrorType.ACCOUNT_DELETE_ERROR} $it"
             }
         )
     }
