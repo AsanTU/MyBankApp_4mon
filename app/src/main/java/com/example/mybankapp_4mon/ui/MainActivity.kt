@@ -12,7 +12,9 @@ import com.example.mybankapp_4mon.databinding.ActivityMainBinding
 import com.example.mybankapp_4mon.databinding.DialogAddAccountBinding
 import com.example.mybankapp_4mon.viewmodel.AccountViewModel
 import com.example.mybankapp_4mon.ui.adapter.AccountAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var accountAdapter: AccountAdapter

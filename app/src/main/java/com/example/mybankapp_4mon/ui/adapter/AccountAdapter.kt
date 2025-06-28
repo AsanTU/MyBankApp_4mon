@@ -42,7 +42,7 @@ class AccountAdapter(
         fun bind(account: Account) = with(binding) {
             account.apply {
                 tvName.text = name
-                tvBalance.text = balance.toString()
+                tvBalance.text = formatCurrency(balance.toDouble(), currency)
                 btnEdit.setOnClickListener {
                     onEdit(this)
                 }
@@ -57,6 +57,17 @@ class AccountAdapter(
                     }
                 }
             }
+        }
+
+        private fun formatCurrency(amount: Double, currency: String): String {
+            val symbol = when (currency.uppercase()) {
+                "KGS" -> "сом"
+                "USD" -> "$"
+                "EUR" -> "€"
+                "RUB" -> "₽"
+                else -> currency
+            }
+            return String.format("%.2f %s", amount, symbol)
         }
     }
 }
